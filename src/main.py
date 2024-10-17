@@ -1,28 +1,30 @@
-from pipeline import load_real_time_data, preprocess_data, detect_peaks
-from feature_extraction import extract_features, correlate_features
-from prediction_algorithm import predict_eye_blink, calculate_power
+from data_preprocessing import apply_lowpass_filter, normalize_eeg_data
+from blink_detection import find_local_minima, find_stable_points
+from template_matching import extract_blink_template, compute_correlation
+from classification import classify_blinks
 
-def run_blink_detection_pipeline():
-    # Step 1: Load real-time EG data
-    raw_data = load_real_time_data()
+def run_blink_detection_pipeline(eeg_data):
+    """
+    Runs the blink detection pipeline.
+    """
+    # Step 1: Preprocess EEG data
+    filtered_data = apply_lowpass_filter(eeg_data)
+    normalized_data = normalize_eeg_data(filtered_data)
 
-    # Step 2: Preprocess data
-    preprocessed_data = preprocess_data(raw_data)
+    # Step 2: Detect blink candidates
+    minima = find_local_minima(normalized_data)
+    stable_points = find_stable_points(normalized_data, minima)
 
-    # Step 3: Detect peaks in data
-    peaks = detect_peaks(preprocessed_data)
+    # Step 3: Template matching and correlation
+    blink_template = extract_blink_template(normalized_data, blink_indices=[])
+    correlations = compute_correlation(normalized_data, blink_template, stable_points)
 
-    # Step 4: Extract features
-    features = extract_features(preprocessed_data, peaks)
+    # Step 4: Classify as blink or noise
+    classifications = classify_blinks(correlations)
 
-    # Step 5: Calculate correlation and power matrices
-    correlation_matrix = correlate_features(features)
-    power_matrix = calculate_power(preprocessed_data)
-
-    # Step 6: Predict eye-blink occurrence
-    prediction = predict_eye_blink(correlation_matrix, power_matrix)
-    return prediction
+    return classifications
 
 if __name__ == "__main__":
-    result = run_blink_detection_pipeline()
+    dummy_eeg_data = []
+    result = run_blink_detection_pipeline(dummy_eeg_data)
     print(result)
