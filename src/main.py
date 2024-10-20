@@ -1,30 +1,34 @@
-from data_preprocessing import apply_lowpass_filter, normalize_eeg_data
-from blink_detection import find_local_minima, find_stable_points
-from template_matching import extract_blink_template, compute_correlation
-from classification import classify_blinks
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+from pipeline import blink_detection_pipeline
 
-def run_blink_detection_pipeline(eeg_data):
+def load_eeg_data(filepath):
     """
-    Runs the blink detection pipeline.
+    Loads EEG data from a CSV file.
+    Args:
+        filepath (str): Path to the EEG data file.
+    Returns:
+        eeg_data (numpy array): Loaded EEG data.
     """
-    # Step 1: Preprocess EEG data
-    filtered_data = apply_lowpass_filter(eeg_data)
-    normalized_data = normalize_eeg_data(filtered_data)
+    eeg_data = np.loadtxt(filepath, delimiter=',', skiprows=5)
+    sample_indices = eeg_data[:, 1]
+    return sample_indices
 
-    # Step 2: Detect blink candidates
-    minima = find_local_minima(normalized_data)
-    stable_points = find_stable_points(normalized_data, minima)
-
-    # Step 3: Template matching and correlation
-    blink_template = extract_blink_template(normalized_data, blink_indices=[])
-    correlations = compute_correlation(normalized_data, blink_template, stable_points)
-
-    # Step 4: Classify as blink or noise
-    classifications = classify_blinks(correlations)
-
-    return classifications
+def visualize_blinks(eeg_data, blinks):
+    """
+    Visualizes the EEG data with detected blinks.
+    """
+    pass
 
 if __name__ == "__main__":
-    dummy_eeg_data = []
-    result = run_blink_detection_pipeline(dummy_eeg_data)
-    print(result)
+    # Step 1: Load the EEG data
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    eeg_filepath = os.path.join(current_dir, '../EEG-VR/S00R_data.csv')
+    eeg_data = load_eeg_data(eeg_filepath)
+    
+    # Step 2: Run the blink detection pipeline
+    detected_blinks = blink_detection_pipeline(eeg_data)
+    
+    # Step 3: Visualize the results
+    visualize_blinks(eeg_data, detected_blinks)
