@@ -1,3 +1,6 @@
+# Computes correlation between troughs in time domain and voltage domain based on correlation and power similarity for redetection later on.
+# Redetection later on will filter out false positives and catch false negatives.
+
 import numpy as np
 
 def compute_correlation(eeg_data, tmin_indices, tstart, tend):
@@ -34,7 +37,8 @@ def compute_correlation(eeg_data, tmin_indices, tstart, tend):
 
 def high_corr_comp(corrmat, powermat, corr_thresh=0.8):
     """
-    Identifies highly correlated components based on correlation and power similarity.
+    Identifies highly correlated blink components based on correlation and power similarity.
+    Finds blink events that are similar to each other and are more likely to be true eye blinks.
     
     Args:
         corrmat (numpy array): Correlation matrix for shape similarity
@@ -61,7 +65,7 @@ def high_corr_comp(corrmat, powermat, corr_thresh=0.8):
 
 def blink_typify_and_adjust(tstart, tmin, tend, index_blinks):
     """
-    Adjusts the threshold and parameters based on identified blink types.
+    Adjusts the threshold and parameters based on identified blink correlations.
     
     Args:
         tstart (list): Start times of the detected troughs.
